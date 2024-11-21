@@ -18,6 +18,7 @@ defmodule GenDemoWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "checkout", CheckoutLive
   end
 
   # Other scopes may use custom stacks.
