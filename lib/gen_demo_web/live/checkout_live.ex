@@ -1,15 +1,23 @@
 defmodule GenDemoWeb.CheckoutLive do
   use Phoenix.LiveView
+  import GenDemoWeb.CoreComponents
+  alias GenDemo.Customer.Accounts
+  alias GenDemo.Customer.CheckoutDetail
 
   def render(assigns) do
     ~H"""
     <!-- component -->
     <div class="leading-loose grid place-content-center">
-      <form class="max-w-xl m-4 p-10 bg-white rounded shadow-xl">
+      <.form
+        class="max-w-xl m-4 p-10 bg-white rounded shadow-xl"
+        for={@form}
+        phx-change="validate"
+        phx-submit="pay"
+      >
         <p class="text-gray-800 font-medium">Customer information</p>
         <div class="">
           <label class="block text-sm text-gray-00" for="cus_name">Name</label>
-          <input
+          <.input
             class="w-full px-5 py-1 text-gray-700 bg-gray-200 rounded"
             id="cus_name"
             name="cus_name"
@@ -17,11 +25,12 @@ defmodule GenDemoWeb.CheckoutLive do
             required=""
             placeholder="Your Name"
             aria-label="Name"
+            field={@form[:name]}
           />
         </div>
         <div class="mt-2">
           <label class="block text-sm text-gray-600" for="cus_email">Email</label>
-          <input
+          <.input
             class="w-full px-5  py-4 text-gray-700 bg-gray-200 rounded"
             id="cus_email"
             name="cus_email"
@@ -29,67 +38,73 @@ defmodule GenDemoWeb.CheckoutLive do
             required=""
             placeholder="Your Email"
             aria-label="Email"
+            field={@form[:email]}
           />
         </div>
         <div class="mt-2">
           <label class=" block text-sm text-gray-600" for="cus_email">Address</label>
-          <input
+          <.input
             class="w-full px-2 py-2 text-gray-700 bg-gray-200 rounded"
-            id="cus_email"
-            name="cus_email"
+            id="street"
+            name="street"
             type="text"
             required=""
             placeholder="Street"
-            aria-label="Email"
+            aria-label="Street"
+            field={@form[:street]}
           />
         </div>
         <div class="mt-2">
           <label class="hidden text-sm block text-gray-600" for="cus_email">City</label>
-          <input
+          <.input
             class="w-full px-2 py-2 text-gray-700 bg-gray-200 rounded"
-            id="cus_email"
-            name="cus_email"
+            id="city"
+            name="city"
             type="text"
             required=""
             placeholder="City"
-            aria-label="Email"
+            aria-label="City"
+            field={@form[:city]}
           />
         </div>
         <div class="inline-block mt-2 w-1/2 pr-1">
           <label class="hidden block text-sm text-gray-600" for="cus_email">Country</label>
-          <input
+          <.input
             class="w-full px-2 py-2 text-gray-700 bg-gray-200 rounded"
-            id="cus_email"
-            name="cus_email"
+            id="country"
+            name="country"
             type="text"
             required=""
             placeholder="Country"
-            aria-label="Email"
+            aria-label="Country"
+            field={@form[:country]}
           />
         </div>
         <div class="inline-block mt-2 -mx-1 pl-1 w-1/2">
           <label class="hidden block text-sm text-gray-600" for="cus_email">Zip</label>
-          <input
+          <.input
             class="w-full px-2 py-2 text-gray-700 bg-gray-200 rounded"
-            id="cus_email"
-            name="cus_email"
+            id="zip"
+            name="zip"
             type="text"
             required=""
             placeholder="Zip"
-            aria-label="Email"
+            aria-label="Zip"
+            field={@form[:zip]}
           />
         </div>
         <p class="mt-4 text-gray-800 font-medium">Payment information</p>
         <div class="">
           <label class="block text-sm text-gray-600" for="cus_name">Phone Number</label>
-          <input
+          <.input
             class="w-full px-2 py-2 text-gray-700 bg-gray-200 rounded"
-            id="cus_name"
-            name="cus_name"
+            id="phone_no"
+            name="phone_no"
             type="text"
             required=""
             placeholder="+254"
-            aria-label="Name"
+            aria-label="Phone_no"
+            field={@form[:phone_no]}
           />
         </div>
         <div class="px-4 pt-8">
@@ -129,16 +144,35 @@ defmodule GenDemoWeb.CheckoutLive do
         <button class="mt-4 mb-8 w-full rounded-md bg-gray-900 px-6 py-3 font-medium text-white">
           Place Order
         </button>
-      </form>
+      </.form>
     </div>
     """
   end
 
-  def mount(params, session, socket) do
-    {:ok, socket}
+  def mount(_params, _session, socket) do
+    {:ok,
+     socket |> assign(form: to_form(Accounts.change_checkout_detail(%CheckoutDetail{}, %{})))}
   end
 
-  def handle_event("pay", _params, socket) do
-    {:noreply, socket}
+  def handle_event("validate", params, socket) do
+    form =
+      %CheckoutDetail{}
+      |> Accounts.change_checkout_detail(params)
+      |> to_form(action: :validate)
+
+    {:noreply, assign(socket, form: form)}
+  end
+
+  def handle_event("pay", params, socket) do
+    case Accounts.create_checkout_detail(params) do
+      {:ok, _details} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "customer details processed")
+         |> redirect(to: "/checkout")}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, form: to_form(changeset))}
+    end
   end
 end
