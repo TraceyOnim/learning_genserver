@@ -13,13 +13,13 @@ defmodule GenDemo.Customer.CheckoutDetail do
   ]
 
   schema "customer_checkout_details" do
-    field :name, :string
-    field :email, :string
-    field :street, :string
-    field :city, :string
-    field :country, :string
-    field :zip, :string
-    field :phone_no, :string
+    field :name, :string, default: "Tee"
+    field :email, :string, default: "tee@email.com"
+    field :street, :string, default: "somewhere"
+    field :city, :string, default: "somewhere"
+    field :country, :string, default: "somewhere"
+    field :zip, :string, default: "somewhere000"
+    field :phone_no, :string, default: "999"
 
     timestamps()
   end

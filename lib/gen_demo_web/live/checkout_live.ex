@@ -8,6 +8,9 @@ defmodule GenDemoWeb.CheckoutLive do
     ~H"""
     <!-- component -->
     <div class="leading-loose grid place-content-center">
+    <p><%= @request_received_at %></p>
+    <p><%= if @time_completed, do: "Time of checkout completion" %><%= @time_completed %></p>
+    <p><%= @checkout_message %></p>
       <.form
         class="max-w-xl m-4 p-10 bg-white rounded shadow-xl"
         for={@form}
@@ -19,8 +22,8 @@ defmodule GenDemoWeb.CheckoutLive do
           <label class="block text-sm text-gray-00" for="cus_name">Name</label>
           <.input
             class="w-full px-5 py-1 text-gray-700 bg-gray-200 rounded"
-            id="cus_name"
-            name="cus_name"
+            id="name"
+            name="name"
             type="text"
             required=""
             placeholder="Your Name"
@@ -32,8 +35,8 @@ defmodule GenDemoWeb.CheckoutLive do
           <label class="block text-sm text-gray-600" for="cus_email">Email</label>
           <.input
             class="w-full px-5  py-4 text-gray-700 bg-gray-200 rounded"
-            id="cus_email"
-            name="cus_email"
+            id="email"
+            name="email"
             type="text"
             required=""
             placeholder="Your Email"
@@ -151,7 +154,7 @@ defmodule GenDemoWeb.CheckoutLive do
 
   def mount(_params, _session, socket) do
     {:ok,
-     socket |> assign(form: to_form(Accounts.change_checkout_detail(%CheckoutDetail{}, %{})))}
+     socket |> assign(request_received_at: nil, time_completed: nil, checkout_message: nil, form: to_form(Accounts.change_checkout_detail(%CheckoutDetail{}, %{})))}
   end
 
   def handle_event("validate", params, socket) do
@@ -159,17 +162,20 @@ defmodule GenDemoWeb.CheckoutLive do
       %CheckoutDetail{}
       |> Accounts.change_checkout_detail(params)
       |> to_form(action: :validate)
+      |> IO.inspect()
 
     {:noreply, assign(socket, form: form)}
   end
 
   def handle_event("pay", params, socket) do
+    request_received_at = DateTime.utc_now()
+    IO.inspect(params, label: "==============params")
+
     case Accounts.create_checkout_detail(params) do
       {:ok, _details} ->
         {:noreply,
-         socket
-         |> put_flash(:info, "customer details processed")
-         |> redirect(to: "/checkout")}
+         assign(socket, checkout_message: "payment_successfull", time_completed: DateTime.utc_now(), request_received_at: request_received_at)
+         }
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
