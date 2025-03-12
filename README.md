@@ -19,4 +19,3 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 
 
-Learn with me  [tutorials](https://www.youtube.com/@tracey_onim)
