@@ -17,9 +17,10 @@ defmodule GenDemo.Application do
       # Start Finch
       {Finch, name: GenDemo.Finch},
       # Start the Endpoint (http/https)
-      GenDemoWeb.Endpoint
+      GenDemoWeb.Endpoint,
       # Start a worker by calling: GenDemo.Worker.start_link(arg)
       # {GenDemo.Worker, arg}
+      CustomerTrackerServer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
