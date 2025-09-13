@@ -9,7 +9,7 @@ defmodule GenDemo.Application do
   def start(_type, _args) do
     children = [
       # Start the Telemetry supervisor
-      GenDemoWeb.Telemetry,
+      # GenDemoWeb.Telemetry,
       # Start the Ecto repository
       GenDemo.Repo,
       # Start the PubSub system
@@ -20,7 +20,8 @@ defmodule GenDemo.Application do
       GenDemoWeb.Endpoint,
       # Start a worker by calling: GenDemo.Worker.start_link(arg)
       # {GenDemo.Worker, arg}
-      CustomerTrackerServer
+      CustomerTrackerServer,
+      TrackerSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
