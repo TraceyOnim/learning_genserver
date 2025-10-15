@@ -22,7 +22,7 @@ defmodule CustomerTrackerServer do
   end
 
   def handle_cast({:add_customers, no_of_customers}, state) do
-    raise "intentional error"
+    # raise "intentional error"
     {:noreply, %{state | customers: state.customers + no_of_customers, time: Time.utc_now()}}
   end
 

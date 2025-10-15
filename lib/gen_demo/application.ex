@@ -20,8 +20,9 @@ defmodule GenDemo.Application do
       GenDemoWeb.Endpoint,
       # Start a worker by calling: GenDemo.Worker.start_link(arg)
       # {GenDemo.Worker, arg}
-      CustomerTrackerServer,
-      TrackerSupervisor
+      # CustomerTrackerServer,
+      # TrackerSupervisor,
+      {DynamicSupervisor, name: GenDemo.DynamicSupervisor, strategy: :one_for_one}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
